@@ -1,4 +1,4 @@
-import { savings } from './calc';
+import { savings,futureValue } from './calc';
 import _ from 'lodash';
 
 test('savings() return correct years', () => {
@@ -14,10 +14,6 @@ test('savings() return compounded savings without growth rate', () => {
   expect(result[4].yearEnd).toEqual(10000 * 5)
 });
 
-test('savings() return compounded savings with growth rate', () => {
-  let result = savings(2, 10000, 0.1)
-  expect(result).toEqual([
-    {year: 1, yearStart:0,     yearEnd: 10000},
-    {year: 2, yearStart:10000, yearEnd: 11000 + 10000},
-  ]);
+test('futureValue() return a correct value by year', () => {
+  expect(futureValue(100, 0.1, 5)).toEqual(107)
 });

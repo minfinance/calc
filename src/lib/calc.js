@@ -15,3 +15,7 @@ export function savings(years, savingsPerYear, growthRate = 0) {
 
   return result
 }
+
+export function futureValue(presentValue, rate, years) {
+  return presentValue * (1 + rate)^years;
+}
