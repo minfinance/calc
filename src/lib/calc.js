@@ -1,48 +1,51 @@
 import _ from 'lodash';
 
+let inflationRate = 1.012
+
 export function entries(state) {
-  let params = {
-    fromAge: parseInt(state.fromAge),
-    toAge:parseInt(state.toAge),
-    yearsToWork: parseInt(state.yearsToWork),
-    monthlyExpense: parseInt(state.monthlyExpense),
-    initialSavings: parseInt(state.initialSavings),
-    growthPercent: parseInt(state.growthPercent)
-  }
+  let fromAge = parseInt(state.fromAge);
+  let toAge = parseInt(state.toAge);
+  let yearsToWork = parseInt(state.yearsToWork);
+  let monthlyExpense = parseInt(state.monthlyExpense);
+  let initialSavings = parseInt(state.initialSavings);
+  let growthPercent = parseInt(state.growthPercent);
 
-  let spendings = spending(params.fromAge + params.yearsToWork + 1, params.toAge, params.monthlyExpense);
+  let spendings = spending(fromAge, fromAge + yearsToWork, toAge, monthlyExpense);
   let target = spendings[0].expense + spendings[0].yearEnd
-  console.log(target);
+  
+  let savingsPerYear = (target - initialSavings * Math.pow(1 + 0.01*growthPercent, yearsToWork - 1)) / geoSeries(1 + 0.01*growthPercent, yearsToWork - 1)
+  var keep = savings(initialSavings, fromAge, fromAge+yearsToWork-1, savingsPerYear, growthPercent * 0.01)
 
-  return savings(params.initialSavings, params.fromAge, params.fromAge+params.yearsToWork, 65000 * 12, params.growthPercent * 0.01)
-         .concat(spendings)
+  return keep.concat(spendings)
 }
 
 export function savings(initialSavings, fromAge, toAge, savingsPerYear, growthRate = 0) {
   var result = []
-  var currentSavings = 0
+  var currentSavings = initialSavings
   
   for(var i=fromAge;i<=toAge;i++) {
     result.push({
         year: i, 
+        expense: savingsPerYear,
         yearStart: currentSavings,
-        yearEnd: currentSavings * (1+growthRate) + savingsPerYear
+        yearEnd: (currentSavings * (1+growthRate)) + savingsPerYear
     })
-    currentSavings += savingsPerYear;
+    currentSavings = (currentSavings * (1+growthRate)) + savingsPerYear;
   }
 
   return result
 }
 
-export function spending(fromAge, toAge, monthlyExpense) {
+export function spending(startingAge, fromAge, toAge, monthlyExpense) {
   var result = _.range(fromAge, toAge+1).map( y => ({
     year: y,
-    expense: futureValue(monthlyExpense * 12, 0.021, y - fromAge)
+    expense: futureValue(monthlyExpense * 12, 0.021, y - startingAge)
   }) );
 
   var sum = 0
   for(var i=result.length-1;i>=0;i--) {
     result[i].yearEnd = sum;
+    result[i].yearStart = sum+result[i].expense;
     sum += result[i].expense;
   }
 
