@@ -1,36 +1,20 @@
 import _ from 'lodash';
 
-let inflationRate = 1.012
+export const inflationRate = 1.012
 
-export function entries(state) {
-  let fromAge = parseInt(state.fromAge);
-  let toAge = parseInt(state.toAge);
-  let yearsToWork = parseInt(state.yearsToWork);
-  let monthlyExpense = parseInt(state.monthlyExpense);
-  let initialSavings = parseInt(state.initialSavings);
-  let growthPercent = parseInt(state.growthPercent);
-
-  let spendings = spending(fromAge, fromAge + yearsToWork, toAge, monthlyExpense);
-  let target = spendings[0].expense + spendings[0].yearEnd
-  
-  let savingsPerYear = (target - initialSavings * Math.pow(1 + 0.01*growthPercent, yearsToWork - 1)) / geoSeries(1 + 0.01*growthPercent, yearsToWork - 1)
-  var keep = savings(initialSavings, fromAge, fromAge+yearsToWork-1, savingsPerYear, growthPercent * 0.01)
-
-  return keep.concat(spendings)
-}
-
-export function savings(initialSavings, fromAge, toAge, savingsPerYear, growthRate = 0) {
+export function savings(initialSavings, fromAge, toAge, savingsPerYear, growthRate) {
   var result = []
   var currentSavings = initialSavings
   
   for(var i=fromAge;i<=toAge;i++) {
+    let interest = currentSavings * growthRate
     result.push({
         year: i, 
-        expense: savingsPerYear,
+        savingsPerYear: savingsPerYear,
         yearStart: currentSavings,
-        yearEnd: (currentSavings * (1+growthRate)) + savingsPerYear
+        interest: interest
     })
-    currentSavings = (currentSavings * (1+growthRate)) + savingsPerYear;
+    currentSavings = currentSavings + interest + savingsPerYear;
   }
 
   return result
@@ -50,6 +34,12 @@ export function spending(startingAge, fromAge, toAge, monthlyExpense) {
   }
 
   return result;
+}
+
+export function savingsPerYear(target, initialSavings, yearsToWork, growthRate) {
+  let growth = 1 + growthRate
+
+  return (target - initialSavings * Math.pow(growth, yearsToWork)) / geoSeries(growth, yearsToWork - 1)
 }
 
 export function futureValue(presentValue, rate, years) {

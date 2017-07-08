@@ -1,34 +1,38 @@
 import React, { Component } from 'react';
 import './App.css';
-import _ from 'lodash';
 import numeral from 'numeral';
 
-import {entries} from './lib/calc';
+import {compute} from './lib/compute';
 
 import { Form, Container, Table, Header, Message } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
 
-const currentYear = new Date().getFullYear();
-const gainOptions = [3,5,7,11,15].map( i => ({ key: i, text: `${i}%`, value: i }) )
+const gainOptions = [0,1,3,5,7,10,15].map( i => ({ key: i, text: `${i}%`, value: i }) )
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      initialSavings: 0,
+    let initialState = {
+      initialSavings: 500000,
       fromAge: 33,
-      yearsToWork: 20,
+      workTillAge: 55,
       growthPercent: 5,
       monthlyExpense: 40000,
-      toAge: 80,
+      toAge: 85,
+      computed: {}
     };
+    let intialStateWithComputed = Object.assign({}, initialState, {computed: compute(initialState)})
+    this.state = intialStateWithComputed
   }
 
-  getRemainingYears = () => parseInt(this.state.toAge) - parseInt(this.state.yearsToWork) - parseInt(this.state.fromAge);
-  getWorkTillYear = () => parseInt(this.state.yearsToWork) + parseInt(this.state.fromAge);
+  setAndCompute = (key,value) => {
+    let newState = Object.assign({}, this.state, {[key]: value})
+    let newStateWithComputed = Object.assign({}, newState, {computed: compute(newState)})
 
-  handleValueChange = (e) => { this.setState({[e.target.name]: e.target.value}) };
-  handleDropdownChange = (e, {value}) => { this.setState({growthPercent: value}) };
+    this.setState(newStateWithComputed); 
+  }
+  handleValueChange = (e) => { this.setAndCompute(e.target.name, e.target.value) };
+  handleDropdownChange = (e, {value}) => { this.setAndCompute("growthPercent", value) }
 
   render() {
     return (
@@ -36,8 +40,8 @@ class App extends Component {
         <Header as='h1'>คำนวณเงินเก็บ</Header>
         <Form>
           <Form.Group widths='equal'>
-            <Form.Input label='อายุ' control='input' type='number' name="fromAge" onChange={this.handleValueChange} value={this.state.fromAge}/>
-            <Form.Input label='จำนวนปีทำงานต่อ' max={99} control='input' type='number' name="yearsToWork" onChange={this.handleValueChange} value={this.state.yearsToWork}/>
+            <Form.Input label='อายุปัจจุบัน' control='input' type='number' name="fromAge" onChange={this.handleValueChange} value={this.state.fromAge}/>
+            <Form.Input label='ทำงานถึงอายุ' max={99} control='input' type='number' name="workTillAge" onChange={this.handleValueChange} value={this.state.workTillAge}/>
             <Form.Input label='ใช้เงินจนถึงอายุ' control='input' type='number' name="toAge" onChange={this.handleValueChange} value={this.state.toAge} />
           </Form.Group>
           <Form.Group widths='equal'>
@@ -49,30 +53,30 @@ class App extends Component {
           <Message>
         <Message.Header>แปลว่า</Message.Header>
           <Message.List>
-            <Message.Item>คุณจะเลิกทำงานเมื่ออายุ {this.getWorkTillYear()} ปี</Message.Item>
-            <Message.Item>และต้องใช้เงินเก็บยาวไป {this.getRemainingYears()} ปี</Message.Item>
+            <Message.Item>จะต้องทำงานไปอีก {this.state.computed.yearsToWork} ปี</Message.Item>
+            <Message.Item>หลังจากนั้นต้องใช้เงินที่เก็บมาไปอีก {this.state.computed.spendingYears} ปี</Message.Item>
+            <Message.Item>ก็เลยต้องเก็บเงินเดือนละ {numeral(this.state.computed.savingsPerMonth).format('0,0')} บาท ถึงจะพอใช้</Message.Item>
           </Message.List>
         </Message>
-        <Header as='h2'>รายละเอียด</Header>
-        <Header as='h3'>เก็บเงิน</Header>
+        <Header as='h2'>ตารางเก็บเงิน</Header>
         <Table unstackable compact>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>ปี</Table.HeaderCell>
-              <Table.HeaderCell>ต้นปี</Table.HeaderCell>
-              <Table.HeaderCell>ต่อเดือน</Table.HeaderCell>
-              <Table.HeaderCell>ต่อปี</Table.HeaderCell>
-              <Table.HeaderCell>ปลายปี</Table.HeaderCell>
+              <Table.HeaderCell>อายุ</Table.HeaderCell>
+              <Table.HeaderCell>เงินเก็บต้นปี</Table.HeaderCell>
+              <Table.HeaderCell>เก็บเงินเพิ่มเดือนละ</Table.HeaderCell>
+              <Table.HeaderCell>รวมเป็นเงินเก็บเพิ่มปีละ</Table.HeaderCell>
+              <Table.HeaderCell>ดอกเบี้ยจากการลงทุน {this.state.growthPercent}%</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            { entries(this.state).map( (l) => 
+            { this.state.computed.savings.map( (l) => 
               <Table.Row key={l.year}>
                 <Table.Cell>{l.year}</Table.Cell>
                 <Table.Cell>{numeral(l.yearStart).format('0,0')}</Table.Cell>
-                <Table.Cell>{numeral(l.expense/12).format('0,0')}</Table.Cell>
-                <Table.Cell>{numeral(l.expense).format('0,0')}</Table.Cell>
-                <Table.Cell>{numeral(l.yearEnd).format('0,0')}</Table.Cell>
+                <Table.Cell>{numeral(l.savingsPerYear/12).format('0,0')}</Table.Cell>
+                <Table.Cell>{numeral(l.savingsPerYear).format('0,0')}</Table.Cell>
+                <Table.Cell>{numeral(l.interest).format('0,0')}</Table.Cell>
               </Table.Row>
               )
             }
