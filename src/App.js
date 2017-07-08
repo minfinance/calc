@@ -25,7 +25,7 @@ class App extends Component {
       initialSavings: 500000,
       fromAge: 33,
       workTillAge: 55,
-      growthPercent: 5,
+      growthPercent: 0,
       monthlyExpense: 40000,
       toAge: 85,
       computed: {}
