@@ -43,10 +43,28 @@ test('savingsPerYear() calculate the same number as breakdown in savings()', () 
   expect(totalYearEnd).toBeCloseTo(target)
 });
 
+test('savingsPerYear() works when growth is 0', () => {
+  let target = 100000
+  let startWork = 30
+  let endWork = 31
+  let initialSavings = 1000
+  let growthRate = 0
+
+  let yearsToWork = endWork - startWork + 1
+
+  let result = savingsPerYear(target, initialSavings, yearsToWork, growthRate)
+  
+  expect(result).toBeCloseTo(49500)
+});
+
 test('futureValue() return a correct value by year', () => {
   expect(futureValue(100, 0.1, 5)).toBeCloseTo(161.051)
 });
 
 test('geoSeries() return a correct value', () => {
   expect(geoSeries(1.021,3)).toBeCloseTo(4.12777)
+});
+
+test('geoSeries() return a correct value when rate is 1', () => {
+  expect(geoSeries(1,3)).toBeCloseTo(4)
 });
