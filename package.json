@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "gh-pages": "^1.0.0",
     "lodash": "^4.17.4",
     "numeral": "^2.0.6",
     "react": "^15.6.1",
@@ -15,7 +16,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "babel-jest": "^20.0.3",
@@ -23,5 +26,6 @@
     "babel-preset-react": "^6.24.1",
     "jest": "^20.0.4",
     "regenerator-runtime": "^0.10.5"
-  }
+  },
+  "homepage": "https://minfinance.github.io/calc/"
 }

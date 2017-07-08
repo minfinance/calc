@@ -57,7 +57,7 @@ export function futureValue(presentValue, rate, years) {
 }
 
 export function geoSeries(r,n) {
-  if(r == 1) {
+  if(r === 1) {
     return n+1;
   }
 
