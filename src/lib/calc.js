@@ -38,7 +38,12 @@ export function spending(fromAge, workTillAge, toAge, initial, yearlyExpense) {
 }
 
 export function totalSpendings(fromAge, workTillAge, toAge, yearlyExpense) {
-  return yearlyExpense * (geoSeries(1+inflationRate, toAge - fromAge) - geoSeries(1+inflationRate, workTillAge - fromAge + 1))
+  var sum = 0
+  for(var i=workTillAge+1;i<=toAge;i++) {
+    sum += futureValue(yearlyExpense, inflationRate, i - fromAge)
+  }
+
+  return sum
 }
 
 export function savingsPerYear(target, initialSavings, yearsToWork, growthRate) {

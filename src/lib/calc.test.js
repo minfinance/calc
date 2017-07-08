@@ -1,4 +1,4 @@
-import { savings,futureValue, geoSeries, savingsPerYear, spending, inflationRate } from './calc';
+import { savings,futureValue, geoSeries, savingsPerYear, spending, totalSpendings, inflationRate } from './calc';
 import _ from 'lodash';
 
 test('savings() return correct calculations', () => {
@@ -17,11 +17,13 @@ test('spending() calculate correct expense', () => {
   let yearlyExpense = 1000;
 
   let inflatedExpense = futureValue(yearlyExpense, inflationRate, 3)
+  let initialValue = totalSpendings(fromAge, workTillAge, toAge, yearlyExpense)
 
-  let spendings = spending(fromAge, workTillAge, toAge, inflatedExpense)
+  let spendings = spending(fromAge, workTillAge, toAge, initialValue, yearlyExpense)
 
   expect(spendings).toHaveLength(2)
-  expect(spendings[0]).toEqual({year:33})
+  expect(spendings[0]).toEqual({year:33, expense: inflatedExpense, yearStart: initialValue, yearEnd: 1086.6832384809995})
+  expect(spendings[1]).toEqual({year:34, expense: inflatedExpense * (1+inflationRate), yearStart: 1086.6832384809995, yearEnd: 0})
 });
 
 test('savingsPerYear() calculate the same number as breakdown in savings()', () => {
