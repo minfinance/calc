@@ -1,4 +1,4 @@
-import {spending, savings, savingsPerYear} from './calc'
+import {spending, savings, savingsPerYear, totalSpendings} from './calc'
 
 export function compute(state) {
   let toAge = parseInt(state.toAge, 10) 
@@ -10,8 +10,8 @@ export function compute(state) {
 
   let yearsToWork = workTillAge - fromAge + 1;
 
-  let spendings = spending(fromAge, workTillAge, toAge, monthlyExpense);
-  let target = spendings[0].expense + spendings[0].yearEnd
+  let target = totalSpendings(fromAge, workTillAge, toAge, monthlyExpense * 12);
+  let spendings = spending(fromAge, workTillAge, toAge, target, monthlyExpense * 12);
   
   let savingsPerYearAmount = savingsPerYear(target, initialSavings, yearsToWork, growthRate)
   let savingsTable = savings(initialSavings, fromAge, workTillAge, savingsPerYearAmount, growthRate)
@@ -21,7 +21,7 @@ export function compute(state) {
     yearStart: target,
   })
   spendings.push({
-    year: "รวม",
+    year: "เหลือ",
     yearStart: 0,
   })
 

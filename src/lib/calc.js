@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const inflationRate = 0.021
 
 export function savings(initialSavings, fromAge, toAge, savingsPerYear, growthRate) {
@@ -21,20 +19,26 @@ export function savings(initialSavings, fromAge, toAge, savingsPerYear, growthRa
   return result
 }
 
-export function spending(startingAge, fromAge, toAge, monthlyExpense) {
-  var result = _.range(fromAge, toAge+1).map( y => ({
-    year: y,
-    expense: futureValue(monthlyExpense * 12, inflationRate, y - startingAge)
-  }) );
+export function spending(fromAge, workTillAge, toAge, initial, yearlyExpense) {
+  var result = [];
+  var current = initial;
+  for(var y=workTillAge+1;y<=toAge;y++) {
+    var expense = futureValue(yearlyExpense, inflationRate, y - fromAge)
+    result.push({
+      year: y,
+      expense: expense,
+      yearStart: current,
+      yearEnd: current - expense,
+    })
 
-  var sum = 0
-  for(var i=result.length-1;i>=0;i--) {
-    result[i].yearEnd = sum;
-    result[i].yearStart = sum+result[i].expense;
-    sum += result[i].expense;
+    current -= expense
   }
 
   return result;
+}
+
+export function totalSpendings(fromAge, workTillAge, toAge, yearlyExpense) {
+  return yearlyExpense * (geoSeries(1+inflationRate, toAge - fromAge) - geoSeries(1+inflationRate, workTillAge - fromAge + 1))
 }
 
 export function savingsPerYear(target, initialSavings, yearsToWork, growthRate) {

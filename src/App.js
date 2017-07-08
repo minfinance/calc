@@ -11,7 +11,7 @@ import 'semantic-ui-css/semantic.min.css'
 const gainOptions = [0,1,3,5,7,10,15].map( i => ({ key: i, text: `${i}%`, value: i }) )
 
 function format(value) {
-  if(value != undefined && !isNaN(value)) {
+  if(value !== undefined && !isNaN(value)) {
     return numeral(value).format('0,0')
   } else {
     return "-"
@@ -64,7 +64,7 @@ class App extends Component {
           <Message.List>
             <Message.Item>จะต้องทำงานไปอีก {this.state.computed.yearsToWork} ปี</Message.Item>
             <Message.Item>หลังจากนั้นต้องใช้เงินที่เก็บมาไปอีก {this.state.computed.spendingYears} ปี</Message.Item>
-            <Message.Item>ก็เลยต้องเก็บเงินเดือนละ {numeral(this.state.computed.savingsPerMonth).format('0,0')} บาท ถึงจะพอใช้</Message.Item>
+            <Message.Item>ก็เลยต้องเก็บเงินเดือนละ {format(this.state.computed.savingsPerMonth)} บาท ถึงจะพอใช้</Message.Item>
           </Message.List>
         </Message>
         <Header as='h2'>ตารางเก็บเงิน</Header>
@@ -96,7 +96,7 @@ class App extends Component {
         ตามที่วางแผนไว้ 
         <List bulleted>
           <List.Item>จะใช้เงินเดือนละ {format(this.state.monthlyExpense)} บาท</List.Item>
-          <List.Item>แต่เงินเฟ้อทุกปี ปีละ {format(inflationRate * 100)} %</List.Item>
+          <List.Item>แต่เงินเฟ้อทุกปี ปีละ {numeral(inflationRate * 100).format('0,0.2')} %</List.Item>
           <List.Item>เลยต้องคิด future value เป็นใช้เดือนละ {format(this.state.computed.spendings[0].expense/12)} บาท ในปีแรก</List.Item>
           <List.Item>และต้องปรับเพิ่มเงินที่ใช้แต่ละเดือน ตามอัตราเงินเฟ้อทุกปี</List.Item>
         </List>
