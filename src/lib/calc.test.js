@@ -5,9 +5,9 @@ test('savings() return correct calculations', () => {
   let result = savings(1000, 30, 32, 1000, 0.05)
 
   expect(result).toHaveLength(3)
-  expect(result[0]).toEqual({year:30, yearStart:1000, savingsPerYear:1000, interest:50})
-  expect(result[1]).toEqual({year:31, yearStart:2050, savingsPerYear:1000, interest:102.5})
-  expect(result[2]).toEqual({year:32, yearStart:3152.5, savingsPerYear:1000, interest:157.625})
+  expect(result[0]).toEqual({year:30, yearStart:1000, savingsPerYear:1000, interest:50, yearEnd:2050})
+  expect(result[1]).toEqual({year:31, yearStart:2050, savingsPerYear:1000, interest:102.5, yearEnd:3152.5})
+  expect(result[2]).toEqual({year:32, yearStart:3152.5, savingsPerYear:1000, interest:157.625, yearEnd:4310.125})
 });
 
 test('savingsPerYear() calculate the same number as breakdown in savings()', () => {

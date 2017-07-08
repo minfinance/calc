@@ -3,11 +3,20 @@ import './App.css';
 import numeral from 'numeral';
 
 import {compute} from './lib/compute';
+import {inflationRate} from './lib/calc';
 
-import { Form, Container, Table, Header, Message } from 'semantic-ui-react'
+import { Form, Container, Table, Header, Message, List } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
 
 const gainOptions = [0,1,3,5,7,10,15].map( i => ({ key: i, text: `${i}%`, value: i }) )
+
+function format(value) {
+  if(value != undefined && !isNaN(value)) {
+    return numeral(value).format('0,0')
+  } else {
+    return "-"
+  }
+}
 
 class App extends Component {
   constructor(props) {
@@ -59,13 +68,14 @@ class App extends Component {
           </Message.List>
         </Message>
         <Header as='h2'>ตารางเก็บเงิน</Header>
+        เงินแต่ละปี = เงินเก็บต้นปีที่แล้ว + ดอกเบี้ยจากเงินเก็บต้นปีที่แล้ว + เงินเก็บต่อปี
         <Table unstackable compact>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>อายุ</Table.HeaderCell>
               <Table.HeaderCell>เงินเก็บต้นปี</Table.HeaderCell>
               <Table.HeaderCell>เก็บเงินเพิ่มเดือนละ</Table.HeaderCell>
-              <Table.HeaderCell>รวมเป็นเงินเก็บเพิ่มปีละ</Table.HeaderCell>
+              <Table.HeaderCell>x 12 เป็นเงินเก็บเพิ่มปีละ</Table.HeaderCell>
               <Table.HeaderCell>ดอกเบี้ยจากการลงทุน {this.state.growthPercent}%</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -73,10 +83,40 @@ class App extends Component {
             { this.state.computed.savings.map( (l) => 
               <Table.Row key={l.year}>
                 <Table.Cell>{l.year}</Table.Cell>
-                <Table.Cell>{numeral(l.yearStart).format('0,0')}</Table.Cell>
-                <Table.Cell>{numeral(l.savingsPerYear/12).format('0,0')}</Table.Cell>
-                <Table.Cell>{numeral(l.savingsPerYear).format('0,0')}</Table.Cell>
-                <Table.Cell>{numeral(l.interest).format('0,0')}</Table.Cell>
+                <Table.Cell>{format(l.yearStart)}</Table.Cell>
+                <Table.Cell>{format(l.savingsPerYear/12)}</Table.Cell>
+                <Table.Cell>{format(l.savingsPerYear)}</Table.Cell>
+                <Table.Cell>{format(l.interest)}</Table.Cell>
+              </Table.Row>
+              )
+            }
+          </Table.Body>
+        </Table>
+        <Header as='h2'>ตารางการใช้เงิน</Header>
+        ตามที่วางแผนไว้ 
+        <List bulleted>
+          <List.Item>จะใช้เงินเดือนละ {format(this.state.monthlyExpense)} บาท</List.Item>
+          <List.Item>แต่เงินเฟ้อทุกปี ปีละ {format(inflationRate * 100)} %</List.Item>
+          <List.Item>เลยต้องคิด future value เป็นใช้เดือนละ {format(this.state.computed.spendings[0].expense/12)} บาท ในปีแรก</List.Item>
+          <List.Item>และต้องปรับเพิ่มเงินที่ใช้แต่ละเดือน ตามอัตราเงินเฟ้อทุกปี</List.Item>
+        </List>
+        เงินแต่ละปี = เงินเก็บต้นปีที่แล้ว - ค่าใช้จ่ายต่อปีที่ปรับตามเงินเฟ้อ
+        <Table unstackable compact>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>อายุ</Table.HeaderCell>
+              <Table.HeaderCell>เงินเก็บต้นปี</Table.HeaderCell>
+              <Table.HeaderCell>ใช้เดือนละ</Table.HeaderCell>
+              <Table.HeaderCell>x 12 เป็นใช้ปีละ</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            { this.state.computed.spendings.map( (l) => 
+              <Table.Row key={l.year}>
+                <Table.Cell>{l.year}</Table.Cell>
+                <Table.Cell>{format(l.yearStart)}</Table.Cell>
+                <Table.Cell>{format(l.expense/12)}</Table.Cell>
+                <Table.Cell>{format(l.expense)}</Table.Cell>
               </Table.Row>
               )
             }
