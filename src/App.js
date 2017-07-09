@@ -67,6 +67,7 @@ class App extends Component {
             <Message.Item>ก็เลยต้องเก็บเงินเดือนละ {format(this.state.computed.savingsPerMonth)} บาท ถึงจะพอใช้</Message.Item>
           </Message.List>
         </Message>
+        ติดตามเรื่องลงทุนแบบมินิมัลลิสต์ง่ายๆได้ต่อที่เพจ <a target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/minimalistfinance">Minimalist Finance</a>
         <Header as='h2'>ตารางเก็บเงิน</Header>
         เงินแต่ละปี = เงินเก็บต้นปีที่แล้ว + ดอกเบี้ยจากเงินเก็บต้นปีที่แล้ว + เงินเก็บต่อปี
         <Table unstackable compact>
