@@ -19,31 +19,40 @@ export function savings(initialSavings, fromAge, toAge, savingsPerYear, growthRa
   return result
 }
 
-export function spending(fromAge, workTillAge, toAge, initial, yearlyExpense) {
+export function spending(fromAge, workTillAge, toAge, initial, yearlyExpense, growthRate) {
   var result = [];
   var current = initial;
   for(var y=workTillAge+1;y<=toAge;y++) {
     var expense = futureValue(yearlyExpense, inflationRate, y - fromAge)
+    let interest = growthRate * (current - expense);
+
     result.push({
       year: y,
       expense: expense,
       yearStart: current,
-      yearEnd: current - expense,
+      interest: (interest < 0.001) ? 0 : interest,
+      yearEnd: (1 + growthRate) * (current - expense),
     })
 
-    current -= expense
+    current = (1 + growthRate)*(current-expense)
   }
 
   return result;
 }
 
-export function totalSpendings(fromAge, workTillAge, toAge, yearlyExpense) {
-  var sum = 0
-  for(var i=workTillAge+1;i<=toAge;i++) {
-    sum += futureValue(yearlyExpense, inflationRate, i - fromAge)
+//Calculate expense backwards
+export function totalSpendings(fromAge, workTillAge, toAge, yearlyExpense, growthRate) {
+  var yearEnd = 0
+  let growthFactor = 1 + growthRate
+
+  for(var i=toAge;i>workTillAge;i--) {
+    let gross = yearEnd / growthFactor;
+    let expenseAtYear = futureValue(yearlyExpense, inflationRate, i - fromAge)
+
+    yearEnd = gross + expenseAtYear
   }
 
-  return sum
+  return yearEnd
 }
 
 export function savingsPerYear(target, initialSavings, yearsToWork, growthRate) {

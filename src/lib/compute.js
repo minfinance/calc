@@ -7,11 +7,12 @@ export function compute(state) {
   let monthlyExpense = parseInt(state.monthlyExpense, 10);
   let initialSavings = parseInt(state.initialSavings, 10);
   let growthRate = parseInt(state.growthPercent, 10) * 0.01;
+  let afterWorkGrowthRate = parseInt(state.afterWorkGrowthPercent, 10) * 0.01;
 
   let yearsToWork = workTillAge - fromAge + 1;
 
-  let target = totalSpendings(fromAge, workTillAge, toAge, monthlyExpense * 12);
-  let spendings = spending(fromAge, workTillAge, toAge, target, monthlyExpense * 12);
+  let target = totalSpendings(fromAge, workTillAge, toAge, monthlyExpense * 12, afterWorkGrowthRate);
+  let spendings = spending(fromAge, workTillAge, toAge, target, monthlyExpense * 12, afterWorkGrowthRate);
   
   let savingsPerYearAmount = savingsPerYear(target, initialSavings, yearsToWork, growthRate)
   let savingsTable = savings(initialSavings, fromAge, workTillAge, savingsPerYearAmount, growthRate)

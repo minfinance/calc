@@ -9,6 +9,7 @@ import { Form, Container, Table, Header, Message, List } from 'semantic-ui-react
 import 'semantic-ui-css/semantic.min.css'
 
 const gainOptions = [0,1,3,5,7,10,15].map( i => ({ key: i, text: `${i}%`, value: i }) )
+const afterWorkGainOptions = [0,1,2,3,5,7,10].map( i => ({ key: i, text: `${i}%`, value: i }) )
 
 function format(value) {
   if(value !== undefined && !isNaN(value)) {
@@ -22,10 +23,11 @@ class App extends Component {
   constructor(props) {
     super(props);
     let initialState = {
-      initialSavings: 500000,
-      fromAge: 33,
+      initialSavings: 100000,
+      fromAge: 25,
       workTillAge: 55,
       growthPercent: 5,
+      afterWorkGrowthPercent: 1,
       monthlyExpense: 40000,
       toAge: 85,
       computed: {}
@@ -41,7 +43,8 @@ class App extends Component {
     this.setState(newStateWithComputed); 
   }
   handleValueChange = (e) => { this.setAndCompute(e.target.name, e.target.value) };
-  handleDropdownChange = (e, {value}) => { this.setAndCompute("growthPercent", value) }
+  handleGrowthPercentChange = (e, {value}) => { this.setAndCompute("growthPercent", value) }
+  handleAfterWorkGrowthPercent = (e, {value}) => { this.setAndCompute("afterWorkGrowthPercent", value) }
 
   render() {
     return (
@@ -55,8 +58,11 @@ class App extends Component {
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.Input label='เงินเก็บปัจจุบัน' control='input' type='number' name="initialSavings" onChange={this.handleValueChange} value={this.state.initialSavings}/>
-            <Form.Select label='ผลตอบแทนการลงทุนเงินเก็บ' options={gainOptions} name="growthPercent" onChange={this.handleDropdownChange} value={this.state.growthPercent}/>
+            <Form.Select label='ผลตอบแทนการลงทุนเงินเก็บ' options={gainOptions} name="growthPercent" onChange={this.handleGrowthPercentChange} value={this.state.growthPercent}/>
+          </Form.Group>
+          <Form.Group widths='equal'>
             <Form.Input label='ใช้เงินต่อเดือน' control='input' type='number' name="monthlyExpense" onChange={this.handleValueChange} value={this.state.monthlyExpense}/>
+            <Form.Select label='ผลตอบแทนการลงทุนเงินเก็บหลังทำงาน' options={afterWorkGainOptions} name="afterWorkGrowthPercent" onChange={this.handleAfterWorkGrowthPercent} value={this.state.afterWorkGrowthPercent}/>
           </Form.Group>
         </Form>
           <Message>
@@ -101,7 +107,7 @@ class App extends Component {
           <List.Item>เลยต้องคิด future value เป็นใช้เดือนละ {format(this.state.computed.spendings[0].expense/12)} บาท ในปีแรก</List.Item>
           <List.Item>และต้องปรับเพิ่มเงินที่ใช้แต่ละเดือน ตามอัตราเงินเฟ้อทุกปี</List.Item>
         </List>
-        เงินแต่ละปี = เงินเก็บต้นปีที่แล้ว - ค่าใช้จ่ายต่อปีที่ปรับตามเงินเฟ้อ
+        เงินแต่ละปี = (เงินเก็บต้นปีที่แล้ว - ค่าใช้จ่ายต่อปีที่ปรับตามเงินเฟ้อ) เอาที่เหลือไปลงทุน
         <Table unstackable compact>
           <Table.Header>
             <Table.Row>
@@ -109,6 +115,7 @@ class App extends Component {
               <Table.HeaderCell>เงินเก็บต้นปี</Table.HeaderCell>
               <Table.HeaderCell>ใช้เดือนละ</Table.HeaderCell>
               <Table.HeaderCell>x 12 เป็นใช้ปีละ</Table.HeaderCell>
+              <Table.HeaderCell>ดอกเบี้ยการลงทุนเงินเก็บที่เหลือ {format(this.state.afterWorkGrowthPercent)}% </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -118,6 +125,7 @@ class App extends Component {
                 <Table.Cell>{format(l.yearStart)}</Table.Cell>
                 <Table.Cell>{format(l.expense/12)}</Table.Cell>
                 <Table.Cell>{format(l.expense)}</Table.Cell>
+                <Table.Cell>{format(l.interest)}</Table.Cell>
               </Table.Row>
               )
             }

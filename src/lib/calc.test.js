@@ -10,20 +10,36 @@ test('savings() return correct calculations', () => {
   expect(result[2]).toEqual({year:32, yearStart:3152.5, savingsPerYear:1000, interest:157.625, yearEnd:4310.125})
 });
 
-test('spending() calculate correct expense', () => {
+test('spending() calculate correct expense without growth', () => {
   let fromAge = 30;
   let workTillAge = 32;
   let toAge = 34;
   let yearlyExpense = 1000;
 
   let inflatedExpense = futureValue(yearlyExpense, inflationRate, 3)
-  let initialValue = totalSpendings(fromAge, workTillAge, toAge, yearlyExpense)
+  let initialValue = totalSpendings(fromAge, workTillAge, toAge, yearlyExpense, 0)
 
-  let spendings = spending(fromAge, workTillAge, toAge, initialValue, yearlyExpense)
+  let spendings = spending(fromAge, workTillAge, toAge, initialValue, yearlyExpense, 0)
 
   expect(spendings).toHaveLength(2)
-  expect(spendings[0]).toEqual({year:33, expense: inflatedExpense, yearStart: initialValue, yearEnd: 1086.6832384809995})
-  expect(spendings[1]).toEqual({year:34, expense: inflatedExpense * (1+inflationRate), yearStart: 1086.6832384809995, yearEnd: 0})
+  expect(spendings[0]).toEqual({year:33, expense: inflatedExpense, yearStart: initialValue, interest: 0, yearEnd: 1086.6832384809995})
+  expect(spendings[1]).toEqual({year:34, expense: inflatedExpense * (1+inflationRate), interest: 0, yearStart: 1086.6832384809995, yearEnd: 0})
+});
+
+test('totalSpendings() calculate correct expense when growth > 0', () => {
+  let fromAge = 30;
+  let workTillAge = 32;
+  let toAge = 34;
+  let yearlyExpense = 1000;
+
+  let inflatedExpense = futureValue(yearlyExpense, inflationRate, 3)
+  let initialValue = totalSpendings(fromAge, workTillAge, toAge, yearlyExpense, 0.01)
+
+  let spendings = spending(fromAge, workTillAge, toAge, initialValue, yearlyExpense, 0.01)
+
+  expect(spendings).toHaveLength(2)
+  expect(spendings[0]).toEqual({year:33, expense: inflatedExpense, yearStart: initialValue, interest: 10.759239984960391,  yearEnd: 1086.6832384809995})
+  expect(spendings[1]).toEqual({year:34, expense: inflatedExpense * (1+inflationRate), interest: 0, yearStart: 1086.6832384809995, yearEnd: 0})
 });
 
 test('savingsPerYear() calculate the same number as breakdown in savings()', () => {
